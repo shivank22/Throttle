@@ -1,0 +1,44 @@
+{% include 'header.html' %}
+{% include 'navbar.html' %}
+<style>
+    .container {
+        margin-top: 1em;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        background-color: #ffffff;
+        }
+        .required:after {
+        content: " *";
+        color: #dc3545;
+        }
+    </style>
+    <div class="container">
+        <h3 class="mb-4 text-center text-primary">User Registration</h3>
+    <form action="/register" method="POST">
+        <div class="mb-3">
+            <label for="username" class="form-label required">Username</label>
+            <input type="text" class="form-control" id="username" name="username" required>
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label required">Password</label>
+            <input type="password" class="form-control" id="password" name="password" required>            
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email (Optional)</label>
+            <input type="email" class="form-control" id="email" name="email">
+        </div>
+        <div class="mb-3">
+            <label for="project" class="form-label">Project (Optional)</label>
+            <input type="text" class="form-control" id="project" name="project">
+        </div>
+        <button type="submit" class="btn btn-primary">Register</button>
+    </form>
+    {% if invalid %}
+        <p style="margin-top: 0.5em; color: #eb4823">{{ detail }}</p>
+    {% endif %}
+</div>
+{% include 'footer.html' %}

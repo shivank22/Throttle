@@ -1,0 +1,27 @@
+{% include 'header.html' %}
+{% include 'navbar.html' %}
+<style>
+    .container {
+        margin-top: 1em;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 2rem;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        border-radius: 15px;
+        background-color: #ffffff;
+    }
+</style>
+<div class="container">
+    <div class="d-grid gap-4 py-4">
+        <h1 class="text-center fw-bold text-danger mb-4">400 - Bad Request</h1>
+        <p class="text-center text-muted">Invalid credentials or bad request. Please try again.</p>
+        <a href="/login" class="btn btn-primary btn-lg fs-4 py-3 rounded-pill hover-shadow">
+            <i class="fas fa-sign-in-alt me-2"></i>Back to Login
+        </a>
+        <a href="/" class="btn btn-secondary btn-lg fs-4 py-3 rounded-pill hover-shadow">
+            <i class="fas fa-home me-2"></i>Go to Homepage
+        </a>
+    </div>
+</div>
+{% include 'footer.html' %}

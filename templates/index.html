@@ -1,0 +1,26 @@
+{% include 'header.html' %}
+{% include 'navbar.html' %}
+<style>
+    .container {
+        margin-top: 1em;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 2rem;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        border-radius: 15px;
+        background-color: #ffffff;
+        }
+    </style>
+    <div class="container">
+        <div class="d-grid gap-4 py-4">
+        <h1 class="text-center fw-bold text-primary mb-4">Welcome to Throttle</h1>
+        <a href="/login" class="btn btn-primary btn-lg fs-4 py-3 rounded-pill hover-shadow">
+            <i class="fas fa-sign-in-alt me-2"></i>Login
+        </a>
+        <a href="/register" class="btn btn-secondary btn-lg fs-4 py-3 rounded-pill hover-shadow">
+            <i class="fas fa-user-plus me-2"></i>Register
+        </a>
+        </div>
+    </div>
+{% include 'footer.html' %}

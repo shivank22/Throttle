@@ -1,0 +1,24 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">Throttle</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+            <div class="d-flex position-relative" style="margin: 0.5em;">
+            <div class="input-group">
+                <input class="form-control" type="search" id="globalSearch" 
+                   placeholder="What are you looking for ?" aria-label="Search" 
+                   onkeyup="performSearch()">
+                <button class="btn btn-outline-light" onclick="performSearch()">Search</button>
+            </div>
+        </div>
+    
+    <div id="searchResults" class="dropdown-menu" style="display: none;">
+        <ul class="list-group" id="resultsList">
+            <!-- Search results will be dynamically inserted here -->
+        </ul>
+    </div>
+        </div>
+    </div>
+</nav>

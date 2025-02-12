@@ -1,0 +1,228 @@
+{% include 'header.html' %}
+{% include 'navbar.html' %}
+<!-- Sidebar -->
+<div class="sidebar position-fixed bg-light shadow-sm">
+    <div class="p-3">
+        <h5 class="mb-4 text-primary fw-bold border-bottom pb-2">Past Conversations</h5>
+        <div id="conversationsList" class="conversation-list">
+            <!-- Past conversations will be listed here -->
+        </div>
+    </div>
+</div>
+
+<style>
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    overflow-y: auto;
+    border-right: 1px solid rgba(0,0,0,.125);
+}
+
+.conversation-list {
+    height: calc(100vh - 100px);
+    overflow-y: auto;
+}
+
+.conversation-list::-webkit-scrollbar {
+    width: 5px;
+}
+
+
+.conversation-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.conversation-list::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 5px;
+}
+</style>
+
+<div class="container-fluid p-0">
+    <div class="row g-0">
+        <!-- Main Chat Area -->
+        <div class="col-md-10 offset-md-2">
+            <div class="chat-container" id="chatContainer" style="height: calc(100vh - 150px); overflow-y: auto; border: 1px solid #dee2e6; padding: 20px; margin: 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            </div>
+            
+            <div class="input-group p-3 bg-white" style="position: fixed; bottom: 0; width: calc(83.33%); box-shadow: 0 -2px 10px rgba(0,0,0,0.1);">
+                <input type="text" id="userInput" class="form-control form-control-lg shadow-none" 
+                    placeholder="Type your message..." onkeypress="handleKeyPress(event)"
+                    style="border-radius: 25px 0 0 25px;">
+                <button class="btn btn-primary btn-lg px-4" onclick="sendMessage()"
+                    style="border-radius: 0;">Send</button>
+                <button class="btn btn-secondary btn-lg px-4" onclick="clearConversations()"
+                    style="border-radius: 0 25px 25px 0;">Clear</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.message {
+    max-width: 70%;
+    margin: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    clear: both;
+}
+
+.user-message {
+    float: right;
+    background-color: #e3f2fd;
+}
+
+.bot-message {
+    float: left;
+    background-color: #f5f5f5;
+}
+
+.sidebar .conversation-item {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+
+.sidebar .conversation-item:hover {
+    background-color: #f8f9fa;
+}
+</style>
+
+<script>
+let conversations = [];
+
+function handleKeyPress(event) {
+    if (event.key === 'Enter') {
+        const input = document.getElementById('userInput');
+        if (input.value.trim() !== '') {
+            sendMessage();
+        }
+    }
+}
+
+async function sendMessage() {
+    const input = document.getElementById('userInput');
+    const message = input.value.trim();
+    if (!message) return;
+
+    appendMessage('user', message);
+    input.value = '';
+
+    try {
+        const response = await fetch('/chat', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({message: message})
+        });
+
+        const reader = response.body.getReader();
+        let botResponse = '';
+        while (true) {
+            const {done, value} = await reader.read();
+            if (done) break;
+            
+            // Convert the Uint8Array to text
+            const chunk = new TextDecoder().decode(value);
+            botResponse += chunk;
+            appendMessageInChat('bot', botResponse);
+            
+            
+        }
+        // Update the bot message in real-time
+        //appendMessage('bot', botResponse);
+        
+        saveConversation(message, botResponse);
+
+
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+function appendMessageInChat(sender, text) {
+    const chatContainer = document.getElementById('chatContainer');
+    let messageDiv = chatContainer.lastElementChild;
+    
+    if (!messageDiv || !messageDiv.classList.contains(`${sender}-message`)) {
+        messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}-message`;
+        chatContainer.appendChild(messageDiv);
+    }
+    
+    messageDiv.textContent = text;
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+function appendMessage(sender, text) {
+    const chatContainer = document.getElementById('chatContainer');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}-message`;
+    messageDiv.textContent = text;
+    chatContainer.appendChild(messageDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+function saveConversation(userMessage, botMessage) {
+    const conversation = {
+        timestamp: new Date().toLocaleString(),
+        userMessage,
+        botMessage
+    };
+    conversations.unshift(conversation);
+    
+}
+
+function loadConversation(index) {
+    const chatContainer = document.getElementById('chatContainer');
+    if (savedChats[index]) {
+        chatContainer.innerHTML = savedChats[index].content;
+    } else if (conversations[index]) {
+        chatContainer.innerHTML = '';
+        const conversation = conversations[index];
+        appendMessage('user', conversation.userMessage);
+        appendMessage('bot', conversation.botMessage);
+    }
+}
+
+function updateConversationsList() {
+    const list = document.getElementById('conversationsList');
+    list.innerHTML = '';
+    
+    savedChats.forEach((chat, index) => {
+        const div = document.createElement('div');
+        div.className = 'conversation-item';
+        div.textContent = `Chat ${index + 1} - ${chat.timestamp}`;
+        div.onclick = () => loadConversation(index);
+        list.appendChild(div);
+    });
+
+    conversations.forEach((conv, index) => {
+        const div = document.createElement('div');
+        div.className = 'conversation-item';
+        div.textContent = `Conversation ${index + 1} - ${conv.timestamp}`;
+        div.onclick = () => loadConversation(index);
+        list.appendChild(div);
+    });
+}
+
+let savedChats = [];
+
+function downloadConversation() {
+    const chatContent = document.getElementById('chatContainer').innerHTML;
+    if (chatContent.trim() !== '') {
+        savedChats.push({
+            timestamp: new Date().toLocaleString(),
+            content: chatContent
+        });
+        console.log('Chat saved:', savedChats);
+    }
+}
+
+// Update the clearConversations function to save before clearing
+function clearConversations() {
+    downloadConversation();
+    conversations = [];
+    document.getElementById('chatContainer').innerHTML = '';
+    updateConversationsList();
+}
+
+</script>
+{% include 'footer.html' %}
